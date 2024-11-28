@@ -1,9 +1,11 @@
+name: prist
+
 services:
   mongo:
-    image: mongo:8.0.3
+    image: mongo:7.0.15
     restart: always
-    container_name: prist_mongo
     environment:
+      MONGO_INITDB_DATABASE: admin
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
     command: "/usr/bin/mongod --bind_ip_all --replSet rs" # startup container in replicaset with name 'rs' mode
@@ -12,6 +14,6 @@ services:
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs', members: [{ _id: 0, host: 'localhost' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 5s
     ports:
-      - "27017:27017"
-    volumes:
-      - ./data/mongo:/data/db
+      - "27018:27017"
+#    volumes:
+#      - ./data/mongo:/data/db
