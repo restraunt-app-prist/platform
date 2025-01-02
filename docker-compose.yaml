@@ -1,6 +1,10 @@
 name: prist
 
+x-spring-profile: &spring-profile
+  SPRING_PROFILES_ACTIVE: default, docker
+
 services:
+
   mongo:
     image: mongo:7.0.15
     container_name: mongo
@@ -12,3 +16,43 @@ services:
       test: |
         test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs', members: [{ _id: 0, host: 'localhost' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 5s
+
+  core:
+    image: restaurant-core:latest
+    restart: always
+    environment:
+      TZ: "CET"
+      <<: [ *spring-profile ]
+
+  gateway:
+    image: restaurant-gateway:latest
+    restart: always
+    environment:
+      TZ: "CET"
+      <<: [ *spring-profile ]
+    ports:
+      - "8000:8000"
+
+  core-frontend:
+    image: restaurant-frontend:latest
+    restart: always
+
+  admintool-gateway:
+    image: restaurant-admintool-gateway:latest
+    restart: always
+    environment:
+      TZ: "CET"
+      <<: [ *spring-profile ]
+    ports:
+      - "9000:9000"
+
+  admintool-frontend:
+    image: restaurant-admintool-frontend:latest
+    restart: always
+
+  admintool:
+    image: restaurant-admintool:latest
+    restart: always
+    environment:
+      TZ: "CET"
+      <<: [ *spring-profile ]
